@@ -4,13 +4,22 @@ class Graph
   @@rows = {
     a: [' ', ' ', ' '],
     b: [' ', ' ', ' '],
-    c: [' ', ' ', ' '],
-    one: [' ', ' ', ' '],
-    two: [' ', ' ', ' '],
-    three: [' ', ' ', ' '],
-    tr_to_bl: [' ', ' ', ' '],
-    tl_to_br: [' ', ' ', ' ']
+    c: [' ', ' ', ' ']
   }
+  @@stats = [
+    @@rows[:a],
+    @@rows[:b],
+    @@rows[:c],
+    [@@rows[:a][0], @@rows[:b][0], @@rows[:c][0]],
+    [@@rows[:a][1], @@rows[:b][1], @@rows[:c][1]],
+    [@@rows[:a][2], @@rows[:b][2], @@rows[:c][2]],
+    [@@rows[:a][0], @@rows[:b][1], @@rows[:c][2]],
+    [@@rows[:c][0], @@rows[:b][1], @@rows[:a][2]]
+  ]
+
+  def self.rows
+    @@stats
+  end
 
   def self.draw
     line_row = ' ___________'
@@ -31,14 +40,12 @@ class Graph
   def self.update_mark_placement
   end
 
-  def self.check_win_condition
-    @@rows.each do |key, row|
-      next if key.match(/^x|sandwich_row|line_row/)
-
+  def self.check_win
+    @@stats.each do |score|
       case
-      when row.tally['X'] == 3
+      when score.tally['X'] == 3
         puts '--- X wins this round! ---'
-      when row.tally['O'] == 3
+      when score.tally['O'] == 3
         puts '--- O wins this round! ---'
       end
     end
@@ -50,6 +57,7 @@ class Piece < Graph
   def mark(row, column)
     @@rows[row.downcase.to_sym][column - 1] = @marking
     Graph.draw
+    Graph.check_win
   end
 end
 
