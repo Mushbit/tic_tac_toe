@@ -1,24 +1,12 @@
 require 'pry-byebug'
 # Used to manage graph
 class Graph
-  attr_accessor :stats, :rows
-
-  def initialize(name)
+  def track_mark_placement
     @@rows = {
       a: ['O', 'O', ' '],
       b: [' ', ' ', ' '],
       c: [' ', ' ', ' ']
     }
-    @@stats = [
-      @@rows[:a],
-      @@rows[:b],
-      @@rows[:c],
-      [@@rows[:a][0], @@rows[:b][0], @@rows[:c][0]],
-      [@@rows[:a][1], @@rows[:b][1], @@rows[:c][1]],
-      [@@rows[:a][2], @@rows[:b][2], @@rows[:c][2]],
-      [@@rows[:a][0], @@rows[:b][1], @@rows[:c][2]],
-      [@@rows[:c][0], @@rows[:b][1], @@rows[:a][2]]
-    ]
   end
 
   def self.draw
@@ -39,7 +27,7 @@ class Graph
 
   def self.reset
     @@rows = {
-      a: [' ', ' ', ' '],
+      a: ['O', 'O', ' '],
       b: [' ', ' ', ' '],
       c: [' ', ' ', ' ']
     }
@@ -56,13 +44,23 @@ class Player < Graph
   end
 
   def mark(row, column)
-    rows[row.downcase.to_sym][column - 1] = @marking
+    @@rows[row.downcase.to_sym][column - 1] = @marking
     Graph.draw
     check_win
   end
 
   def check_win
-    @stats.each do |score|
+    stats = [
+      @@rows[:a],
+      @@rows[:b],
+      @@rows[:c],
+      [@@rows[:a][0], @@rows[:b][0], @@rows[:c][0]],
+      [@@rows[:a][1], @@rows[:b][1], @@rows[:c][1]],
+      [@@rows[:a][2], @@rows[:b][2], @@rows[:c][2]],
+      [@@rows[:a][0], @@rows[:b][1], @@rows[:c][2]],
+      [@@rows[:c][0], @@rows[:b][1], @@rows[:a][2]]
+    ]
+    stats.each do |score|
       break unless score.tally[@marking] == 3
 
       puts "--- #{@name} wins this round! ---"
