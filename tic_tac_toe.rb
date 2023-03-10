@@ -6,27 +6,25 @@ class Graph
   def initialize
     @rows = {
       a: [' ', ' ', ' '],
-      b: [' ', ' ', ' '],
-      c: [' ', ' ', ' ']
+      b: ['X', ' ', 'O'],
+      c: [' ', 'X', 'X']
     }
   end
 
-  class << self
-    def draw
-      line_row = ' ___________'
-      sandwich_row = '    |   |   '
-      graph = "\n      1   2   3
-      #{sandwich_row}
-      A #{rows[:a].join(' | ')}
-      #{line_row}
-      #{sandwich_row}
-      B #{rows[:b].join(' | ')}
-      #{line_row}
-      #{sandwich_row}
-      c #{rows[:c].join(' | ')}
-      \n"
-      puts graph
-    end
+  def draw
+    line_row = ' ___________'
+    sandwich_row = '    |   |   '
+    graph = "\n      1   2   3
+    #{sandwich_row}
+    A #{rows[:a].join(' | ')}
+    #{line_row}
+    #{sandwich_row}
+    B #{rows[:b].join(' | ')}
+    #{line_row}
+    #{sandwich_row}
+    c #{rows[:c].join(' | ')}
+    \n"
+    puts graph
   end
 end
 
@@ -42,17 +40,17 @@ class Player
     check_win
   end
 
-  def check_win
+  def get_stats
+    abc = [:a, :b, :c]
     stats = [
-      game.rows[:a],
-      game.rows[:b],
-      game.rows[:c],
-      [game.rows[:a][0], game.rows[:b][0], game.rows[:c][0]],
-      [game.rows[:a][1], game.rows[:b][1], game.rows[:c][1]],
-      [game.rows[:a][2], game.rows[:b][2], game.rows[:c][2]],
+      game.rows.map { |_k, v| v },
+      (0..2).map { |i| rows.map { |_k, v| v[i] } },
       [game.rows[:a][0], game.rows[:b][1], game.rows[:c][2]],
       [game.rows[:c][0], game.rows[:b][1], game.rows[:a][2]]
     ]
+  end
+
+  def check_win
     stats.each do |score|
       break unless score.tally[@marking] == 3
 
