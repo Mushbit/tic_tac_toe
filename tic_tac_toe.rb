@@ -12,19 +12,31 @@ class Graph
   end
 
   def draw
-    line_row = ' ___________'
-    sandwich_row = '    |   |   '
+    line_row = ' ---+---+---'
     graph = "\n      1   2   3
-    #{sandwich_row}
     A #{rows[:a].join(' | ')}
     #{line_row}
-    #{sandwich_row}
     B #{rows[:b].join(' | ')}
     #{line_row}
-    #{sandwich_row}
     c #{rows[:c].join(' | ')}
     \n"
     puts graph
+  end
+
+  def get_stats
+    abc = [:a, :b, :c]
+    stats = [
+      rows.map { |_k, v| v },
+      (0..2).map { |i| rows.map { |_k, v| v[i] } },
+      [[rows[:a][0], rows[:b][1], rows[:c][2]]],
+      [[rows[:c][0], rows[:b][1], rows[:a][2]]]
+    ].flatten(1)
+  end
+
+  def mark(row, column, marking)
+    rows[row.downcase.to_sym][column - 1] = marking
+    Graph.draw
+    check_win
   end
 end
 
@@ -34,22 +46,9 @@ class Player
     @name = name
   end
 
-  def mark(row, column)
-    game.rows[row.downcase.to_sym][column - 1] = @marking
-    Graph.draw
-    check_win
+  def choose_location(row, column)
+    game.mark(row, column, @marking)
   end
-
-  def get_stats
-    abc = [:a, :b, :c]
-    stats = [
-      game.rows.map { |_k, v| v },
-      (0..2).map { |i| rows.map { |_k, v| v[i] } },
-      [game.rows[:a][0], game.rows[:b][1], game.rows[:c][2]],
-      [game.rows[:c][0], game.rows[:b][1], game.rows[:a][2]]
-    ]
-  end
-
   def check_win
     stats.each do |score|
       break unless score.tally[@marking] == 3
@@ -58,7 +57,7 @@ class Player
       @wins += 1
 
       puts "--- #{@name} won the game! ---" if @wins == 3
-      Graph.reset
+
     end
   end
 end
