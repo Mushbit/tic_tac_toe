@@ -50,16 +50,13 @@ end
 
 # Super class for marking X's and O's and checking wins
 class Player
+  attr_accessor :turns, :wins
+  attr_reader :name
+
   def initialize(name)
     @name = name
-  end
-
-  def choose_location(row, column)
-    game.mark(row, column, @marking)
-  end
-
-  def check_win(stats)
-    stats.map { |score| score.tally[@marking] == 3 }.any?(true)
+    @turns = 0
+    @wins = 0
   end
 end
 
@@ -68,47 +65,81 @@ class Circle < Player
   def initialize(name = 'O')
     super
     @marking = 'O'
-    @wins = 0
   end
 end
 
 # Player "X"
 class Cross < Player
+  attr_reader :marking
+
   def initialize(name = 'X')
     super
     @marking = 'X'
-    @wins = 0
   end
 end
 
 # Will use this class to control pase and maintain rules of the game
 class Game
+  attr_accessor :game, :player1, :player2
+
   def initialize
     @game = Graph.new
-    @player1 = Cross.new('John')
-    @player2 = Circle.new('Frank')
+    # puts 'Player 1 name:'
+    # name1 = gets.chomp
+    # puts 'Player 2 name:'
+    # name2 = gets.chomp
+    @player1 = Cross.new('Frank')
+    @player2 = Circle.new('Tyrone')
+    switch_player
+  end
+
+  def start_game
+    game.draw
+    puts 'When choosing a tile to mark use coordinates like so: B 1 -or- A 3.
+    Remember to leave a white space between the x and y coordinate.'
+    switch_player
+  end
+
+  def switch_player
+    player = if player1.turns >= player2.turns
+               player1
+             else
+               player2
+             end
+    play_round(player)
+  end
+
+  def convert_x(x_y)
+    case x_y[0].downcase
+    when 'a'
+      x_y[0] = 3
+    when 'b'
+      x_y[0] = 2
+    when 'c'
+      x_y[0] = 1
+    else
+      start_game
+    end
+  end
+
+  def play_round(player)
+    puts "It is #{player.name}'s turn:"
+    x_y = convert_x(gets.chomp.split)
+    game.mark(x_y[0], x_y[1], player.marking)
+    celebrate(player) if check_win(game.stats, player)
+    player.turns += 1
+    switch_player unless player.wins == 3
+  end
+
+  def check_win(stats, player)
+    stats.map { |score| score.tally[player.marking] == 3 }.any?(true)
+  end
+
+  def celebrate(player)
+    player.wins += 1
+    if player.wins == 3
+      puts "#{player} won the game!"
+    end
+    "#{player} just won this round!"
   end
 end
-
-
-game = Graph.new
-player1 = Cross.new('John')
-player2 = Circle.new('Frank')
-game.mark(1, 2, 'O')
-p player1.check_win(game.stats)
-game.mark(1, 1, 'X')
-p player2.check_win(game.stats)
-game.mark(1, 3, 'O')
-p player1.check_win(game.stats)
-game.mark(3, 1, 'X')
-p player2.check_win(game.stats)
-game.mark(3, 3, 'O')
-p player1.check_win(game.stats)
-game.mark(2, 2, 'X')
-p player2.check_win(game.stats)
-game.mark(2, 3, 'O')
-p player2.check_win(game.stats)
-p game.count_mark_diag
-p game.count_mark_rows
-p game.count_mark_cols
-p game.stats
